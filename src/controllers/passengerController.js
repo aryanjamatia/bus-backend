@@ -5,6 +5,7 @@ const AppError = require('../utils/AppError');
 const asyncHandler = require('../utils/asyncHandler');
 const { estimateEta } = require('../services/etaService');
 const { distanceInMeters } = require('../utils/geo');
+const { getRouteDirections } = require('../services/routeDirectionsService');
 
 function getCoordinates(query) {
   const latitude = Number(query.latitude ?? query.lat);
@@ -172,4 +173,9 @@ const getNearbyService = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getLiveBuses, getNearby, getEtaForStop, getNearbyService };
+const getDirectionsForRoute = asyncHandler(async (req, res) => {
+  const directions = await getRouteDirections(req.params.routeId);
+  res.status(200).json({ success: true, directions });
+});
+
+module.exports = { getLiveBuses, getNearby, getEtaForStop, getNearbyService, getDirectionsForRoute };

@@ -34,5 +34,6 @@ module.exports = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   corsOrigins: origins,
   adminApiKey: process.env.ADMIN_API_KEY,
+  googleMapsServerApiKey: process.env.GOOGLE_MAPS_SERVER_API_KEY,
   validateEnvironment,
 };
