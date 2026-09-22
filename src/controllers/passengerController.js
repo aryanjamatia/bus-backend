@@ -76,6 +76,20 @@ const getNearby = asyncHandler(async (req, res) => {
   });
 });
 
+// Public map data. Unlike nearby-service, this is not limited by the 50 m
+// passenger-to-stop rule, so the map can always show the city network.
+const getNetworkOverview = asyncHandler(async (req, res) => {
+  const [stops, routes, locations] = await Promise.all([
+    BusStop.find().sort({ name: 1 }),
+    Route.find().populate('stops.stop', 'name code location').select('name code direction origin destination stops').sort({ code: 1 }),
+    LiveLocation.find(recentLiveQuery())
+      .populate('bus', 'registrationNumber fleetNumber totalSeats availableSeats')
+      .populate('route', 'name code direction')
+      .sort({ recordedAt: -1 }),
+  ]);
+  res.status(200).json({ success: true, stops, routes, buses: locations });
+});
+
 const getEtaForStop = asyncHandler(async (req, res) => {
   const busStop = await BusStop.findById(req.params.stopId);
   if (!busStop) throw new AppError('Bus stop not found.', 404);
@@ -178,4 +192,4 @@ const getDirectionsForRoute = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, directions });
 });
 
-module.exports = { getLiveBuses, getNearby, getEtaForStop, getNearbyService, getDirectionsForRoute };
+module.exports = { getLiveBuses, getNearby, getNetworkOverview, getEtaForStop, getNearbyService, getDirectionsForRoute };
